@@ -29,6 +29,21 @@ V = look_at(
     center=(0, 0.7, 0)
 )
 
+# Memeriksa orientasi basis kamera
+R_view = V[:3, :3]
+
+det_view = np.linalg.det(R_view)
+
+print("\n===== HANDEDNESS CHECK =====")
+print("Determinant view:", det_view)
+
+if not np.isclose(det_view, 1.0, atol=1e-6):
+    raise ValueError(
+        "Handedness atau orientasi basis kamera tidak sesuai!"
+    )
+
+print("OK: right-handed view basis")
+
 # 4. Menentukan matriks Projection
 P = perspective(
     fovy_deg=45,
