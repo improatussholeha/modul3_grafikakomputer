@@ -1,0 +1,105 @@
+﻿A3 - DIAGNOSIS DAN PERBAIKAN TIGA BUG
+
+1. INSIDE-OUT (WINDING / BACK-FACE)
+
+Diagnosis:
+Arah winding segitiga pada model dibalik. Ketika back-face
+culling diaktifkan, permukaan luar dianggap sebagai
+back-facing dan dihilangkan dari hasil rendering.
+
+Bukti:
+Rata-rata perbedaan depth sebesar 0.082 NDC.
+Jumlah fragment berubah dari 31.059 menjadi 33.445.
+
+Pengukuran:
+Sebelum perbaikan:
+SSIM = 0.790
+PSNR = 14.33 dB
+
+Sesudah perbaikan:
+SSIM = 1.000
+PSNR = infinity
+
+Perbaikan:
+Mengembalikan winding segitiga ke arah semula sehingga
+permukaan luar dapat dirender dengan benar.
+
+Kaitan dengan Pitfall:
+Drift konvensi winding / backface pada bagian 12.6.
+
+
+2. Z-FIGHTING (NEAR PLANE TERLALU KECIL)
+
+Diagnosis:
+Dua permukaan yang berdekatan memiliki nilai depth yang
+sangat mirip. Penggunaan near plane 0.001 bersama depth
+buffer 16-bit menyebabkan banyak nilai depth dibulatkan
+ke kode yang sama sehingga urutan gambar menentukan
+permukaan yang terlihat.
+
+Bukti:
+Pada near 0.001 terdapat 2.852 pixel yang salah
+dibandingkan referensi float-depth.
+Setelah near dinaikkan menjadi 1.0, perbedaannya turun
+menjadi 184 pixel.
+
+Pengukuran terhadap referensi float-depth:
+Sebelum perbaikan:
+SSIM = 0.763
+PSNR = 16.44 dB
+
+Sesudah perbaikan:
+SSIM = 0.984
+PSNR = 28.34 dB
+
+Perbaikan:
+Menaikkan near plane dari 0.001 menjadi 1.0 sehingga
+presisi depth menjadi lebih baik pada scene pengujian.
+
+Kaitan dengan Pitfall:
+Near plane terlalu kecil pada bagian 12.2.
+
+
+3. STRETCHED (URUTAN MATRIKS SALAH)
+
+Diagnosis:
+Urutan perkalian matriks model tidak sesuai dengan
+konvensi column vector yang digunakan proyek.
+Selain itu, transformasi scale non-uniform diterapkan
+pada posisi yang salah sehingga bentuk model berubah.
+
+Bukti:
+Matriks model yang salah memiliki nilai scale berbeda
+pada sumbu X, Y, dan Z. Hasil gambar menjadi tidak sesuai
+dengan bentuk model yang seharusnya.
+
+Pengukuran:
+Sebelum perbaikan:
+SSIM = 0.594
+PSNR = 11.49 dB
+
+Sesudah perbaikan:
+SSIM = 1.000
+PSNR = infinity
+
+Perbaikan:
+Mengembalikan urutan matriks model yang benar, yaitu
+translate @ rot_y @ scale, sesuai konvensi proyek.
+
+Kaitan dengan Pitfall:
+Urutan perkalian matriks pada bagian 12.1.
+
+
+KESIMPULAN
+
+Ketiga bug menunjukkan bahwa kesalahan pada winding,
+presisi depth, dan urutan transformasi dapat menghasilkan
+perubahan visual yang besar. Pengujian SSIM dan PSNR
+digunakan untuk mengukur perbedaan hasil sebelum dan
+sesudah perbaikan.
+
+Catatan:
+Nilai SSIM menggunakan implementasi global SSIM pada
+metrics.py. Nilai SSIM sesudah perbaikan untuk inside-out
+dan stretched adalah 1.000 karena hasil render yang
+sudah diperbaiki digunakan sebagai referensi.

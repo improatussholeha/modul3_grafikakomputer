@@ -1,0 +1,66 @@
+﻿A4 - ANALISIS RASTERIZATION VS RAY TRACING
+
+1. HASIL PENGUKURAN
+
+Pengujian dilakukan menggunakan model pusaka_model.obj
+dengan jumlah 180 segitiga dan resolusi 256 x 256 pixel.
+
+Rasterizer:
+Median frame-time : 146.529 ms
+Mean frame-time   : 158.027 ms
+FPS               : 6.82
+
+Ray tracer:
+Median frame-time : 1606.771 ms
+Mean frame-time   : 1602.226 ms
+FPS               : 0.62
+
+Rasio waktu ray tracer terhadap rasterizer:
+
+1606.771 / 146.529 = 10.97 kali.
+
+2. PREDIKSI DAN REKONSILIASI
+
+Sebelum pengujian, diprediksi bahwa rasterizer akan lebih
+cepat daripada ray tracer. Hasil pengukuran mendukung
+prediksi tersebut. Ray tracer membutuhkan waktu sekitar
+10.97 kali lebih lama. Perbedaan ini dipengaruhi oleh
+proses pengujian ray terhadap geometri yang dilakukan
+oleh implementasi Python, sedangkan rasterizer mengolah
+segitiga berdasarkan area pixel yang terkena.
+
+3. SHADOW DAN REFLECTION
+
+Kedua program saat ini menggunakan pencahayaan Lambert.
+Ray tracer belum menggunakan secondary rays sehingga
+reflection dan hard shadow lanjutan belum tersedia.
+Secara teori, ray tracing dapat dikembangkan untuk
+menghasilkan efek tersebut.
+
+4. KEPUTUSAN RENDERING
+
+Untuk viewer real-time dipilih rasterization karena
+lebih cepat dan sesuai untuk interaksi langsung.
+
+Untuk beauty shot dipilih pendekatan ray tracing sebagai
+arah pengembangan karena berpotensi menghasilkan
+reflection, hard shadow, dan global illumination yang
+lebih realistis. Fitur tersebut masih perlu
+diimplementasikan dan diuji.
+
+5. KETERBATASAN DAN KONDISI PEMBALIK KEPUTUSAN
+
+- GPU dengan RT cores dan implementasi ray tracing GPU
+  dapat membuat ray tracing lebih kompetitif.
+- Kebutuhan global illumination dan reflection realistis
+  dapat membuat ray tracing lebih sesuai.
+- Target frame rate interaktif yang tinggi membuat
+  rasterization lebih sesuai.
+
+6. KESIMPULAN
+
+Berdasarkan pengujian pada model 180 segitiga dengan
+resolusi 256 x 256, rasterizer menghasilkan waktu render
+yang lebih cepat dibandingkan ray tracer. Pemilihan
+metode rendering tetap bergantung pada kebutuhan aplikasi,
+kualitas visual, perangkat keras, dan target frame rate.
