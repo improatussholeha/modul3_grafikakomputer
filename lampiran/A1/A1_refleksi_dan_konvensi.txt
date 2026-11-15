@@ -1,0 +1,302 @@
+
+TUGAS ANALISIS A1
+TRANSFORMASI 3D DAN COORDINATE SPACE
+
+1. INFORMASI TOOLCHAIN
+
+Sistem operasi       : Windows 11 Home Single Language
+Windows Build        : 26200.9974
+Python               : 3.14.3
+NumPy                : 2.5.4
+Node.js              : 24.16.0
+npm                  : 11.13.0
+Google Chrome        : 157.0.8103.78 (64-bit)
+Three.js             : 0.160.0
+Tanggal pengujian    : 15 November 2026
+
+2. MODEL YANG DIGUNAKAN
+
+Model yang digunakan adalah model candi Pusaka3D
+yang dibuat menggunakan program make_model.py.
+
+Nama file model  : data/pusaka_model.obj
+Texture          : data/relief.ppm
+Jumlah vertex    : 120
+Jumlah segitiga  : 180
+
+Model yang digunakan masih merupakan model bawaan
+dari make_model.py, bukan model bangunan yang saya
+buat sendiri. Hal ini dilakukan karena saya belum
+membuat model alternatif dengan Blender. Sesuai
+instruksi modul, make_model.py digunakan sebagai
+alternatif jika mahasiswa tidak dapat membuat model
+sendiri.
+
+Jumlah segitiga model adalah 180, sehingga belum
+mencapai target minimal 200 segitiga pada instruksi
+Lab 1. Keterbatasan ini dicatat agar hasil pengerjaan
+tetap sesuai dengan kondisi sebenarnya.
+
+3. PENELUSURAN SATU VERTEX
+
+Vertex yang digunakan adalah vertex indeks 0.
+
+Object Space:
+[-1.000, 0.000, -1.000, 1.000]
+
+World Space:
+[-1.950, 0.000, -0.344, 1.000]
+
+View Space:
+[-1.340, -0.246, -6.071, 1.000]
+
+Clip Space:
+[-3.235, -0.594, 4.852, 6.071]
+
+NDC Space:
+[-0.533, -0.098, 0.799]
+
+Screen Space (512 x 512):
+[119.591, 281.063, 0.799]
+
+4. PERHITUNGAN MATRIKS MODEL M
+
+Matriks model:
+
+[ 1.147  0.000   0.803  0.000 ]
+[ 0.000  1.400   0.000  0.000 ]
+[-0.803  0.000   1.147  0.000 ]
+[ 0.000  0.000   0.000  1.000 ]
+
+Vertex object:
+
+p = [-1, 0, -1, 1]
+
+Perkalian M x p menghasilkan:
+
+x = 1.147(-1) + 0.803(-1)
+  = -1.950
+
+y = 1.400(0)
+  = 0
+
+z = -0.803(-1) + 1.147(-1)
+  = -0.344
+
+Hasil World Space:
+
+[-1.950, 0.000, -0.344, 1.000]
+
+5. PERHITUNGAN MATRIKS VIEW V
+
+Matriks view:
+
+[ 0.794  0.000 -0.607  0.000 ]
+[-0.177  0.957 -0.231 -0.670 ]
+[ 0.581  0.291  0.760 -4.677 ]
+[ 0.000  0.000  0.000  1.000 ]
+
+Koordinat World Space:
+
+[-1.950, 0.000, -0.344, 1.000]
+
+Setelah dikalikan dengan matriks V, diperoleh:
+
+[-1.340, -0.246, -6.071, 1.000]
+
+Nilai tersebut sesuai dengan hasil program
+trace_model_vertex.py sampai tiga angka desimal.
+
+6. PENELUSURAN KOLOM MATRIKS M DAN V
+
+Matriks Model M:
+
+Origin -> [0.000, 0.000, 0.000]
++X     -> [1.147, 0.000, -0.803]
++Y     -> [0.000, 1.400, 0.000]
++Z     -> [0.803, 0.000, 1.147]
+
+Matriks View V:
+
+Origin -> [0.000, -0.670, -4.677]
++X     -> [0.794, -0.846, -4.095]
++Y     -> [0.000, 0.287, -4.386]
++Z     -> [-0.607, -0.901, -3.917]
+
+Pemeriksaan determinan matriks view menghasilkan
+nilai 1.0. Hasil ini menunjukkan bahwa basis rotasi
+view mempertahankan orientasi right-handed.
+
+7. REFLEKSI LEARNOPENGL DAN TRANSFORMS.PY
+
+Berdasarkan referensi LearnOpenGL bagian Coordinate
+Systems, proses transformasi objek 3D dilakukan
+melalui model matrix, view matrix, dan projection
+matrix. Ketiga matriks tersebut digunakan untuk
+mengubah koordinat lokal objek menjadi clip space.
+
+Perbedaan yang saya temukan adalah cara proses
+tersebut dijalankan. Pada transforms.py, perhitungan
+matriks dilakukan secara langsung menggunakan
+NumPy sehingga setiap tahap transformasi dapat
+diperiksa dan diamati. Sementara itu, pada OpenGL,
+perkalian matriks dilakukan melalui vertex shader
+menggunakan GPU. Hasilnya kemudian diproses
+melalui perspective division, clipping, dan
+viewport transformation.
+
+Menurut saya, implementasi Python lebih mudah
+dipelajari karena proses perhitungan dapat dilihat
+secara bertahap. Sementara itu, OpenGL lebih sesuai
+untuk rendering real-time karena memanfaatkan
+pemrosesan GPU.
+
+8. REFLEKSI DEPTH PRECISION DAN REVERSE-Z
+
+Pada proyek ini digunakan konfigurasi kamera:
+
+Near plane = 1
+Far plane  = 14
+
+Depth buffer pada proyeksi perspektif memiliki
+distribusi yang tidak linear dan berkaitan dengan
+nilai kebalikan jarak atau 1/z.
+
+Nilai depth standar dapat dihitung menggunakan:
+
+d(r) = far/(far-near)
+       - (far*near)/((far-near)*r)
+
+Dengan near = 1 dan far = 14, diperoleh:
+
+d(r) = 14/13 - 14/(13r)
+
+Contoh perhitungan:
+
+Jarak 1:
+d(1) = 0.0000
+
+Jarak 2:
+d(2) = 0.5385
+
+Jarak 7:
+d(7) = 0.9231
+
+Jarak 13:
+d(13) = 0.9941
+
+Jarak 14:
+d(14) = 1.0000
+
+Dari hasil tersebut terlihat bahwa perubahan nilai
+depth semakin kecil ketika objek berada semakin
+jauh dari kamera. Hal ini dapat menyebabkan dua
+permukaan yang berdekatan sulit dibedakan dan
+menimbulkan z-fighting.
+
+Salah satu solusi yang dapat digunakan adalah
+reverse-Z. Teknik ini membalik pemetaan depth,
+yaitu near menjadi 1 dan far menjadi 0. Dengan
+floating-point depth buffer, teknik tersebut dapat
+meningkatkan presisi pada jarak jauh.
+
+Pada pengujian proyek, near plane sebesar 0.001
+menghasilkan 2.852 pixel yang salah dibandingkan
+referensi float-depth. Setelah near plane diubah
+menjadi 1.0, jumlahnya turun menjadi 184 pixel.
+
+Hasil ini menunjukkan bahwa pemilihan near dan
+far plane berpengaruh terhadap kualitas depth
+buffer.
+
+9. TABEL PERBANDINGAN KONVENSI OPENGL DAN
+DIRECT3D
+
+Konvensi yang umum digunakan:
+
+Aspek             OpenGL             Direct3D
+Handedness        Right-handed       Left-handed
+Matrix vector     Column vector      Row vector
+Urutan matriks    P x V x M x p      p x M x V x P
+NDC Z             -1 sampai +1       0 sampai +1
+Origin UV         Kiri bawah        Kiri atas
+
+Catatan:
+Handedness dan urutan perkalian matriks merupakan
+konvensi umum yang dapat diubah oleh programmer,
+bukan aturan mutlak setiap API. Direct3D juga
+mendukung penggunaan sistem koordinat right-handed.
+
+10. SCENE PENGUJIAN UNTUK MENDETEKSI BUG
+
+a. Kesalahan urutan matriks:
+Menggunakan objek kubus asimetris yang diberi
+rotasi, translasi, dan scale.
+
+b. Near plane terlalu kecil:
+Menggunakan dua bidang yang hampir coplanar
+dengan jarak kamera berbeda.
+
+c. Kesalahan pembagian perspektif:
+Menggunakan satu vertex yang diketahui berada
+di depan kamera untuk memastikan nilai w benar.
+
+d. Interpolasi UV linear:
+Menggunakan segitiga lantai dengan wL = 1
+dan wR = 9.
+
+e. Tanpa mipmap:
+Menggunakan texture checkerboard pada permukaan
+yang dilihat dari jarak jauh.
+
+f. Winding terbalik:
+Menggunakan model kubus dengan back-face culling.
+
+g. Origin UV terbalik:
+Menggunakan texture yang memiliki tulisan TOP
+dan BOTTOM.
+
+h. Radian dan derajat:
+Menggunakan objek dengan rotasi tepat 90 derajat.
+
+11. PEMERIKSAAN HANDEDNESS OTOMATIS
+
+Pada trace_model_vertex.py ditambahkan pemeriksaan
+determinan bagian rotasi dari matriks view.
+
+Hasil pengujian:
+
+Determinant view: 1.0
+OK: right-handed view basis
+
+Pemeriksaan ini digunakan untuk mengetahui apakah
+basis rotasi view memiliki orientasi yang benar.
+Selain itu, koordinat titik yang berada di depan
+kamera harus memiliki z view negatif.
+
+Dengan pemeriksaan ini, kesalahan orientasi
+koordinat dapat diketahui lebih awal.
+
+12. REFERENSI
+
+1. LearnOpenGL. Coordinate Systems.
+   https://learnopengl.com/Getting-started/Coordinate-Systems
+
+2. Reed, Nathan. 2015.
+   Depth Precision Visualized.
+   https://www.reedbeta.com/blog/depth-precision-visualized/
+
+3. Reed, Nathan. 2021.
+   Visualizing Depth Precision.
+   NVIDIA Developer Blog.
+   https://developer.nvidia.com/blog/visualizing-depth-precision/
+
+4. Microsoft Learn.
+   Coordinate Systems (Direct3D 9).
+   https://learn.microsoft.com/en-us/windows/win32/direct3d9/coordinate-systems
+
+5. Microsoft Learn.
+   Introduction to Textures.
+   https://learn.microsoft.com/en-us/windows/uwp/graphics-concepts/introduction-to-textures
+
+Tanggal akses referensi: 15 November 2026.
