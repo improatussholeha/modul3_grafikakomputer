@@ -1,0 +1,19 @@
+PREDIKSI SEBELUM PENGUKURAN
+
+1. Saya memprediksi rasterizer akan memiliki waktu
+   rendering lebih cepat dibandingkan ray tracer.
+
+2. Perkiraan rasio waktu:
+   Ray tracer diperkirakan membutuhkan sekitar 5 kali
+   waktu rasterizer.
+
+3. Alasan:
+   Rasterizer memproses segitiga melalui area pixel yang
+   terkena objek, sedangkan ray tracer menguji ray pixel
+   terhadap segitiga model.
+
+4. Prediksi shadow dan reflection:
+   Secara teori ray tracing dapat diperluas untuk
+   menghasilkan shadow dan reflection melalui secondary
+   rays. Namun, saya perlu memeriksa fitur yang benar-benar
+   tersedia pada implementasi program ini.

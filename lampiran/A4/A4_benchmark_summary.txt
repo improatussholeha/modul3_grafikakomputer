@@ -1,0 +1,7 @@
+A4 - BENCHMARK RENDERER
+Model: data/pusaka_model.obj
+Triangles: 180
+Resolution: 256x256
+Rasterizer median: 146.529 ms
+Ray tracer median: 1606.771 ms
+Ratio RT/Raster: 10.97x
