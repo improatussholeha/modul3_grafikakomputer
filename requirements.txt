@@ -7,3 +7,5 @@ numpy>=1.24
 pillow>=10.0        # optional -- reference cross-checks only
 
 matplotlib>=3.8
+
+matplotlib>=3.8
